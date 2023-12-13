@@ -142,7 +142,10 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
     global crud
     try:
         return crud.add_or_update_device(
-            id, device_device=device.device, device_name=device.name
+            id,
+            device_device=device.device,
+            device_name=device.name,
+            room_id=device.room_id,
         )
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")

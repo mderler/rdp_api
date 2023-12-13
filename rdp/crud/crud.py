@@ -98,7 +98,6 @@ class Crud:
             Device: The added or updated device
         """
         db_device = None
-        tmp_device = None
         with Session(self._engine) as session:
             db_device = None
             if device_id is not None:
@@ -152,8 +151,7 @@ class Crud:
                 db_room = Room()
             if room_name:
                 db_room.name = room_name
-            if room_group_id:
-                db_room.room_group_id = room_group_id
+            db_room.room_group_id = room_group_id
             session.add(db_room)
             try:
                 session.commit()

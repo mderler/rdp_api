@@ -64,7 +64,7 @@ class Reader:
                     self._read_device(device)
                 except FileNotFoundError as e:
                     logger.error(e)
-            time.sleep(0.1)
+            time.sleep(10)
             count += 1
             if count % 100 == 0:
                 logger.info("read 100 values")
