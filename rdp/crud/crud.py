@@ -122,8 +122,35 @@ class Crud:
                 logging.error("Integrity")
                 raise
             session.refresh(db_device)
-            new_id = db_device.id
-        return self.get_device(new_id)
+        return db_device
+
+    def delete_device(
+        self,
+        device_id: int,
+    ) -> Device:
+        """Delete a device
+
+        Args:
+            device_id (int): Device id to be deleted.
+
+        Returns:
+            Device: The deleted device
+        """
+        db_device = None
+        with Session(self._engine) as session:
+            stmt = select(Device).where(Device.id == device_id)
+            for device in session.scalars(stmt):
+                db_device = device
+            if db_device is None:
+                logging.error(f"Device with id:{device_id} does not exist.")
+                raise NoResultFound()
+            session.delete(db_device)
+            try:
+                session.commit()
+            except IntegrityError:
+                logging.error("Integrity")
+                raise
+        return db_device
 
     def add_or_update_room(
         self, room_id: int = None, room_name: str = None, room_group_id: int = None
@@ -137,9 +164,8 @@ class Crud:
         Returns:
             Room: The added or updated room
         """
-        new_id = None
+        db_room = None
         with Session(self._engine) as session:
-            db_room = None
             if room_id is not None:
                 stmt = select(Room).where(Room.id == room_id)
                 for room in session.scalars(stmt):
@@ -159,8 +185,7 @@ class Crud:
                 logging.error("Integrity")
                 raise
             session.refresh(db_room)
-            new_id = db_room.id
-        return self.get_room(new_id)
+        return db_room
 
     def add_or_update_room_group(
         self,
@@ -168,9 +193,8 @@ class Crud:
         room_group_name: str = None,
         parent_group_id: int = None,
     ) -> Room:
-        new_id = None
+        db_room_group = None
         with Session(self._engine) as session:
-            db_room_group = None
             if room_group_id is not None:
                 stmt = select(RoomGroup).where(RoomGroup.id == room_group_id)
                 for room_group in session.scalars(stmt):
@@ -191,8 +215,55 @@ class Crud:
                 logging.error("Integrity")
                 raise
             session.refresh(db_room_group)
-            new_id = db_room_group.id
-        return self.get_room_group(new_id)
+        return db_room_group
+
+    def delete_room_group(
+        self,
+        room_group_id: int = None,
+    ) -> Room:
+        db_room_group = None
+        with Session(self._engine) as session:
+            stmt = select(RoomGroup).where(RoomGroup.id == room_group_id)
+            for room_group in session.scalars(stmt):
+                db_room_group = room_group
+            if db_room_group is None:
+                logging.error(f"Room with id:{room_group_id} does not exist.")
+                raise NoResultFound()
+            session.delete(db_room_group)
+            try:
+                session.commit()
+            except IntegrityError:
+                logging.error("Integrity")
+                raise
+        return db_room_group
+
+    def delete_room(
+        self,
+        room_id: int,
+    ) -> Room:
+        """Delete a room
+
+        Args:
+            room_id (int): Room id to be deleted.
+
+        Returns:
+            Room: The deleted room
+        """
+        db_room = None
+        with Session(self._engine) as session:
+            stmt = select(Room).where(Room.id == room_id)
+            for room in session.scalars(stmt):
+                db_room = room
+            if db_room is None:
+                logging.error(f"Room with id:{room_id} does not exist.")
+                raise NoResultFound()
+            session.delete(db_room)
+            try:
+                session.commit()
+            except IntegrityError:
+                logging.error("Integrity")
+                raise
+        return db_room
 
     def get_value_types(self) -> List[ValueType]:
         """Get all configured value types

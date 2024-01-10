@@ -78,7 +78,7 @@ def put_type(id, value_type: ApiTypes.ValueTypeNoID) -> ApiTypes.ValueType:
         raise HTTPException(status_code=404, detail="Item not found")
 
 
-@app.get("/device/{id}")
+@app.get("/device/{id}/")
 def get_device(id) -> ApiTypes.Device:
     """Get specific device from the database with the specified id.
     Args:
@@ -155,6 +155,31 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
         )
 
 
+@app.delete("/device/{id}/")
+def delete_device(id) -> ApiTypes.Device:
+    """DELETE device: Delete device of id.
+
+    Args:
+        id int: device id
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.Device: Deleted device.
+
+    """
+    global crud
+    try:
+        return crud.delete_device(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError:
+        raise HTTPException(
+            status_code=400,
+        )
+
+
 @app.get("/device/")
 def get_devices() -> List[ApiTypes.Device]:
     """Get all devices from the database.
@@ -197,7 +222,7 @@ def get_values(
         raise HTTPException(status_code=404, detail="Item not found")
 
 
-@app.get("/room/{id}")
+@app.get("/room/{id}/")
 def get_room(id) -> ApiTypes.Room:
     """Get specific room from the database with the specified id.
     Args:
@@ -214,6 +239,29 @@ def get_room(id) -> ApiTypes.Room:
         return crud.get_room(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
+
+
+@app.delete("/room/{id}/")
+def delete_room(id) -> ApiTypes.Room:
+    """Delete specific room from the database with the specified id.
+    Args:
+        id int: room id
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.Room: The deleted room.
+    """
+    global crud
+    try:
+        return crud.delete_room(id)
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError:
+        raise HTTPException(
+            status_code=400,
+        )
 
 
 @app.get("/room/")
@@ -290,7 +338,7 @@ def put_room(id: int, room: ApiTypes.RoomNoID) -> ApiTypes.Room:
         )
 
 
-@app.get("/room-group/{id}")
+@app.get("/room-group/{id}/")
 def get_room_group(id) -> ApiTypes.RoomGroup:
     """Get specific room group from the database with the specified id.
     Args:
@@ -375,6 +423,31 @@ def put_room_group(id: int, room_group: ApiTypes.RoomGroupNoID) -> ApiTypes.Room
             room_group_name=room_group.name,
             parent_group_id=room_group.room_group_id,
         )
+    except crud.NoResultFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    except crud.IntegrityError:
+        raise HTTPException(
+            status_code=400,
+        )
+
+
+@app.delete("/room-group/{id}/")
+def delete_room_group(id: int) -> ApiTypes.RoomGroup:
+    """DELETE room group: Delete room group of id.
+
+    Args:
+        id int: room id
+
+    Raises:
+        HTTPException
+
+    Returns:
+        ApiTypes.RoomGroup: Deleted room group.
+
+    """
+    global crud
+    try:
+        return crud.delete_room_group(id)
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
     except crud.IntegrityError:
