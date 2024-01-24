@@ -313,6 +313,69 @@ gui
 |   |-- App.vue                         Root component
 ```
 
+### GUI explanation
+
+The GUI has three sections:
+
+1. Searchbar for filtering values
+2. Editors to interact with the data and models
+3. Sensor value list
+
+#### Searchbar
+
+The user inputs commands for filtering the values. The format looks like this:
+
+```
+<command>:<value>
+```
+
+##### Commands
+
+To filter by the value type use the command `type`:
+
+```
+type:temperature
+```
+
+To display only values _after_ a specific time use `start` with the unix timestamp:
+
+```
+start:1706105607
+```
+
+To display only values _before_ a specific time use ´end´ with the unix timestamp:
+
+```
+end:1706106807
+```
+
+You also can combine commands:
+
+```
+start:1706105607 end:1706106807
+```
+
+#### Editors
+
+For each model in the database there is an editor to operate CRUD actions on those models.
+
+Every editor works in a similarly way.
+
+On the top is a list of the existing entities for that table in the database. Each field is
+displayed by a input or select field. You can change the values here. After modifying a field
+a ´submit´ button will appear that is used to save the changes. Items can be deleted by clicking
+the bin button on the left side of the item.
+
+Then below the list is a section for creating new items.
+
+#### Value list
+
+Every sensor value will be displayed here. Only a subset will be displayed when using a filter.
+
+The datetime, type, value with unit and device can be found in a row.
+
+### Files
+
 #### App.vue
 
 Here is a snippet from the main component:
@@ -350,7 +413,9 @@ Here is a snippet from the main component:
 _TypesDisplay_ for example is a component that displayes an user interface for adding, updating and deleting
 value types.
 
-#### Forms for API
+For more information on how Vue.js works, visit their docs: https://vuejs.org/
+
+### Forms for API
 
 For each model on the server there is an editor in the GUI that is used to change the data.
 
@@ -385,7 +450,11 @@ This is archived with the `v-for` directive:
 />
 ```
 
-#### Pinia
+The SingleDeviceDisplay component gets a device object passed through props.
+
+### Pinia
 
 Pinia is a store that holds data globally in the vue application. For each model there
 is a pinia store that has an API to fetch the latest data from the server.
+
+For more information on Pinia visit their docs: https://pinia.vuejs.org/
