@@ -264,3 +264,59 @@ async def startup_event() -> None:
     reader.start()
     logger.debug("STARTUP: Sensor reader completed!")
 ```
+
+## GUI
+
+### File Structure
+
+Here is a simplified representation of the file structure of the gui code:
+```
+gui
+|-- src
+|   |-- assets                          Containes global styles
+|   |   |-- *.css
+|   |-- commands
+|   |   |-- command.factory.ts          Factory for creating commands
+|   |   |-- command.ts                  Command base class
+|   |   |-- *.command.ts                A concrete command
+|   |-- components
+|   |   |-- *.vue                       Vue component
+|   |-- scripts
+|   |   |-- *.ts                        Type of a API schema
+|   |-- stores
+|   |   |-- *.ts                        Pinia store for managing state
+|   |-- types
+|   |   |-- *.type.ts                   Various typescript type
+|   |-- main.ts                         Entrypoint 
+|   |-- App.vue                         Base component
+```
+
+#### App.vue
+
+Here is a snippet from the main component:
+```vue
+<template>
+  <div class="container p-1">
+    <h1 class="row">RDP</h1>
+    <InputBar @search="update_search" />
+    <TypesDisplay
+      :value_types="valueTypeStore.valueTypes"
+      @update_type="valueTypeStore.updateValueTypes"
+    />
+    <DeviceDisplay :devices="deviceStore.devices" @update_device="deviceStore.updateDevices" />
+    <RoomsDisplay :rooms="roomStore.rooms" @update_room="roomStore.updateRooms" />
+    <RoomGroupsDisplay
+      :room-groups="roomStore.roomGroups"
+      @update_room_group="roomStore.updateRooms"
+    />
+    <ValuesDisplay
+      :values="valueStore.values"
+      :value_types="valueTypeStore.valueTypes"
+      :devices="deviceStore.devices"
+    />
+  </div>
+</template>
+```
+
+*TypesDisplay* for example is a component that displayes a user interface for adding, updating and deleting
+value types.
