@@ -9,13 +9,13 @@ workspace
 |-- logs    Various logs of the application
 ```
 
-For each section the corresponding directory will be explained in 
+For each section the corresponding directory will be explained in
 detail.
 
 ## Debugging & Logs
 
-When the api is running, the application is writing logs in the 
-**workspace/logs** folder. There are logs of nginx, the gui and the 
+When the api is running, the application is writing logs in the
+**workspace/logs** folder. There are logs of nginx, the gui and the
 api itself.
 
 The usful logs are explained below:
@@ -36,14 +36,16 @@ logger.error("error")
 
 **CAUTION**
 
-If you don't find your logged messages, thats maybe because the 
-displayed log level is not set to the appropiate level. You can take a 
+If you don't find your logged messages, thats maybe because the
+displayed log level is not set to the appropiate level. You can take a
 way around this by logging at a higher level:
 
 ```
 logger.info("")
 ```
+
 becomes to
+
 ```
 logger.error("")
 ```
@@ -56,6 +58,7 @@ This log will give you info about the vite dev server that runs the gui.
 If the gui isn't running, you will see it here.
 
 If the last message in the log looks like this...
+
 ```log
 > rdp@0.0.0 dev
 > vite
@@ -66,6 +69,7 @@ If the last message in the log looks like this...
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
 ```
+
 ... then it should mean that the dev server is running correctly. Sometimes
 there will be some warnings printed below the message shown above.
 But this shouldn't be any problem.
@@ -74,10 +78,12 @@ But this shouldn't be any problem.
 probably means that the dependencies are not installed.
 
 To fix this, navigate in the container to the gui folder and enter this command:
+
 ```bash
 abc@4069ff6a4615:~/workspace$ cd gui
 abc@4069ff6a4615:~/workspace/gui$ npm i
 ```
+
 After this the dependecies should be installed and the server will be running again.
 
 ### nginx_error.log
@@ -94,27 +100,29 @@ running and thus nginx can't connect to it
 ### File Structure
 
 Here is a representation of the file structure of the api code:
+
 ```
 api
 |-- rdp
-|   |-- api    
-|   |   |-- __init__.py    
-|   |   |-- api_types.py    REST API pydantic model definitions    
-|   |   |-- main.py         API Endpoint definitions 
-|   |-- crud    
-|   |   |-- __init__.py    
+|   |-- api
+|   |   |-- __init__.py
+|   |   |-- api_types.py    REST API pydantic model definitions
+|   |   |-- main.py         API Endpoint definitions
+|   |-- crud
+|   |   |-- __init__.py
 |   |   |-- crud.py         Crud operations on database
 |   |   |-- engine.py       Helper function for database engine
 |   |   |-- model.py        Database ORM Model definitions
-|   |-- sensor   
-|   |   |-- __init__.py    
+|   |-- sensor
+|   |   |-- __init__.py
 |   |   |-- reader.py       Class defintion for reading devices
-|   |-- __init__.py   
+|   |-- __init__.py
 ```
 
 ### REST API
 
 API Endpoints are defined in _api/rdp/api/main.py_ like so:
+
 ```python
 @app.put("/device/{id}/")
 def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
@@ -149,6 +157,7 @@ Step by Step
 With `@app.put(path)` you can tell FastAPI that the following function should act as an
 endpoint for a PUT request at the url _/device/:id_ where _id_ is an id for a
 device in the database
+
 ```python
 @app.put("/device/{id}/")
 ```
@@ -159,6 +168,7 @@ The `id` will take the value of the _id_ in the url.
 
 And `-> ApiTypes.Device` will tell FastAPI that this function will return a Device
 object
+
 ```python
 @app.put("/device/{id}/")
 def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
@@ -171,25 +181,30 @@ def put_device(id, device: ApiTypes.DeviceNoID) -> ApiTypes.Device:
 ![Data model](./docs/data_model.drawio.png)
 
 **ValueType** gives info of which unit a value has.
+
 - type_name: The name of the type
 - type_unit: The unit of the type
 
 **Value** is a measurement of a device.
+
 - time: The time of measurement in unix time format
 - value: A floating point value
 - value_type_id: Foreign key to ValueType
 - device_id: Foreign key to Device
 
 **Device** represents a real device in a location that reads values
+
 - name: Name of device
 - device: The location of the device file of a unix system
 - room_id: Foreign key to Room in which the device is located
 
 **Room**
+
 - name: Name of Room
 - room_group_id: Foreign key to RoomGroup
 
 **RoomGroup** groups multiple room logically
+
 - name: Name of room group
 
 #### Sqlalchemy
@@ -200,6 +215,7 @@ For this application, all tables are defined with sqlalchemy in
 _api/rdp/crud/model.py_
 
 How to define a table with sqlalchemy:
+
 ```python
 class Device(Base):
     __tablename__ = "device"
@@ -216,19 +232,23 @@ class Device(Base):
     __table_args__ = (UniqueConstraint("device", name="device integrity"),)
 ```
 
-**__tablename__** defines the table name
+\***\*tablename\*\*** defines the table name
 
-**Mapped[type]** will map the member variable of the python object to an field in 
+**Mapped[type]** will map the member variable of the python object to an field in
 the database:
+
 ```python
 name: Mapped[str]
 ```
+
 With **mapped_column()** you can give some args to the field:
+
 ```python
 id: Mapped[int] = mapped_column(primary_key=True)
 ```
 
 There are multiple ways to define relations but for all features you can do this:
+
 ```python
 room_id: Mapped[int] = mapped_column(ForeignKey("room.id"), nullable=True)
 
@@ -244,7 +264,7 @@ values: Mapped[List["Value"]] = relationship(
 The `back_populates` option will reference the children member in the
 parent object. Much like **values** that represents the children python objects
 
-With **__table_args__** you can set additional arguments for the table like
+With \***\*table_args\*\*** you can set additional arguments for the table like
 an unique constraint.
 
 ### Sensor
@@ -254,6 +274,7 @@ them, read the values from the devices and save the values back to the
 database.
 
 A sensor object will be initialized in _api/rdp/api/main.py_:
+
 ```python
 @app.on_event("startup")
 async def startup_event() -> None:
@@ -270,6 +291,7 @@ async def startup_event() -> None:
 ### File Structure
 
 Here is a simplified representation of the file structure of the gui code:
+
 ```
 gui
 |-- src
@@ -287,13 +309,14 @@ gui
 |   |   |-- *.ts                        Pinia store for managing state
 |   |-- types
 |   |   |-- *.type.ts                   Various typescript type
-|   |-- main.ts                         Entrypoint 
-|   |-- App.vue                         Base component
+|   |-- main.ts                         Entrypoint
+|   |-- App.vue                         Root component
 ```
 
 #### App.vue
 
 Here is a snippet from the main component:
+
 ```vue
 <template>
   <div class="container p-1">
@@ -303,8 +326,14 @@ Here is a snippet from the main component:
       :value_types="valueTypeStore.valueTypes"
       @update_type="valueTypeStore.updateValueTypes"
     />
-    <DeviceDisplay :devices="deviceStore.devices" @update_device="deviceStore.updateDevices" />
-    <RoomsDisplay :rooms="roomStore.rooms" @update_room="roomStore.updateRooms" />
+    <DeviceDisplay
+      :devices="deviceStore.devices"
+      @update_device="deviceStore.updateDevices"
+    />
+    <RoomsDisplay
+      :rooms="roomStore.rooms"
+      @update_room="roomStore.updateRooms"
+    />
     <RoomGroupsDisplay
       :room-groups="roomStore.roomGroups"
       @update_room_group="roomStore.updateRooms"
@@ -318,5 +347,45 @@ Here is a snippet from the main component:
 </template>
 ```
 
-*TypesDisplay* for example is a component that displayes a user interface for adding, updating and deleting
+_TypesDisplay_ for example is a component that displayes an user interface for adding, updating and deleting
 value types.
+
+#### Forms for API
+
+For each model on the server there is an editor in the GUI that is used to change the data.
+
+For example take the device editor:
+In _/components_ are the files _DeviceDisplay.vue_ and _SingeDeviceDisplay.vue_. These are
+the components of the device editor.
+
+The list of devices is passed to the DeviceDisplay component as prop in _App.vue_:
+
+```vue
+<DeviceDisplay
+  :devices="deviceStore.devices"
+  @update_device="deviceStore.updateDevices"
+/>
+```
+
+The `@update_device="deviceStore.update"` is an event triggert when an user makes
+changes to an devices or creates a new one. This will cause a fetch to the server to
+get the new data.
+
+Then inside DeviceDisplay a SingleDeviceDisplay will be rendered for each device that
+exists.
+
+This is archived with the `v-for` directive:
+
+```vue
+<SingleDeviceDisplay
+  :device-prop="device"
+  v-for="device in devices"
+  :key="device"
+  @update_device="$emit('update_device')"
+/>
+```
+
+#### Pinia
+
+Pinia is a store that holds data globally in the vue application. For each model there
+is a pinia store that has an API to fetch the latest data from the server.
