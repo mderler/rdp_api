@@ -415,7 +415,7 @@ value types.
 
 For more information on how Vue.js works, visit their docs: https://vuejs.org/
 
-### Forms for API
+### Editors in detail
 
 For each model on the server there is an editor in the GUI that is used to change the data.
 

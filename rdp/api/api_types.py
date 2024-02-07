@@ -59,3 +59,7 @@ class RoomGroup(RoomGroupNoID):
 class CsvHeaderMapping(BaseModel):
     mappings: List[Dict[str, str]]
     device_id: int
+
+
+class ValueAverage(BaseModel):
+    avg: float

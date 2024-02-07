@@ -6,7 +6,7 @@ from typing import List
 
 from io import StringIO
 
-from sqlalchemy import select
+from sqlalchemy import select, asc, desc, func
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
@@ -294,6 +294,8 @@ class Crud:
         start: int = None,
         end: int = None,
         device_id: int = None,
+        order: str = None,
+        isasc: str = None
     ) -> List[Value]:
         """Get Values from database.
 
@@ -309,6 +311,7 @@ class Crud:
         """
         with Session(self._engine) as session:
             stmt = select(Value)
+            order_dir = asc if isasc == "true" else desc
             if value_type_id is not None:
                 stmt = stmt.join(Value.value_type).where(ValueType.id == value_type_id)
             if start is not None:
@@ -317,7 +320,48 @@ class Crud:
                 stmt = stmt.where(Value.time <= end)
             if device_id is not None:
                 stmt = stmt.where(Value.device_id == device_id)
-            stmt = stmt.order_by(Value.time)
+            if order == "type":
+                stmt = stmt.join(Value.value_type).order_by(order_dir(ValueType.type_name))
+            if order == "value":
+                stmt = stmt.order_by(order_dir(Value.value))
+            if order == "device":
+                stmt = stmt.join(Value.device).order_by(order_dir(Device.name))
+            else:
+                stmt = stmt.order_by(order_dir(Value.time))
+            logging.error(start)
+            logging.error(stmt)
+
+            return session.scalars(stmt).all()
+    
+    def get_values_average(
+        self,
+        value_type_id: int = None,
+        start: int = None,
+        end: int = None,
+        device_id: int = None,
+    ) -> List[Value]:
+        """Get Values from database.
+
+        The result can be filtered by the following paramater:
+
+        Args:
+            value_type_id (int, optional): If set, only value of this given type will be returned. Defaults to None.
+            start (int, optional): If set, only values with a timestamp as least as big as start are returned. Defaults to None.
+            end (int, optional): If set, only values with a timestamp as most as big as end are returned. Defaults to None.
+
+        Returns:
+            List[Value]: _description_
+        """
+        with Session(self._engine) as session:
+            stmt = select(func.avg(Value.value).label("avg"))
+            if value_type_id is not None:
+                stmt = stmt.join(Value.value_type).where(ValueType.id == value_type_id)
+            if start is not None:
+                stmt = stmt.where(Value.time >= start)
+            if end is not None:
+                stmt = stmt.where(Value.time <= end)
+            if device_id is not None:
+                stmt = stmt.where(Value.device_id == device_id)
             logging.error(start)
             logging.error(stmt)
 
