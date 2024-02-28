@@ -198,7 +198,12 @@ def get_devices() -> List[ApiTypes.Device]:
 
 @app.get("/value/")
 def get_values(
-    type_id: int = None, start: int = None, end: int = None, device: int = None, orderfield: str = None, asc: str = None
+    type_id: int = None,
+    start: int = None,
+    end: int = None,
+    device: int = None,
+    orderfield: str = None,
+    asc: str = None,
 ) -> List[ApiTypes.Value]:
     """Get values from the database. The default is to return all available values. This result can be filtered.
 
@@ -220,6 +225,7 @@ def get_values(
         return values
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
+
 
 @app.get("/value/average")
 def get_average_value(

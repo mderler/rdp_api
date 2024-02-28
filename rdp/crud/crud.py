@@ -295,7 +295,7 @@ class Crud:
         end: int = None,
         device_id: int = None,
         order: str = None,
-        isasc: str = None
+        isasc: str = None,
     ) -> List[Value]:
         """Get Values from database.
 
@@ -321,7 +321,9 @@ class Crud:
             if device_id is not None:
                 stmt = stmt.where(Value.device_id == device_id)
             if order == "type":
-                stmt = stmt.join(Value.value_type).order_by(order_dir(ValueType.type_name))
+                stmt = stmt.join(Value.value_type).order_by(
+                    order_dir(ValueType.type_name)
+                )
             if order == "value":
                 stmt = stmt.order_by(order_dir(Value.value))
             if order == "device":
@@ -332,14 +334,14 @@ class Crud:
             logging.error(stmt)
 
             return session.scalars(stmt).all()
-    
+
     def get_values_average(
         self,
         value_type_id: int = None,
         start: int = None,
         end: int = None,
         device_id: int = None,
-    ) -> List[Value]:
+    ) -> float:
         """Get Values from database.
 
         The result can be filtered by the following paramater:
@@ -365,7 +367,7 @@ class Crud:
             logging.error(start)
             logging.error(stmt)
 
-            return session.scalars(stmt).all()
+            return session.scalars(stmt).all()[0]
 
     def get_device(self, id: int) -> Device:
         """Get Device from database.
