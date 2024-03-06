@@ -63,3 +63,8 @@ class CsvHeaderMapping(BaseModel):
 
 class ValueAverage(BaseModel):
     avg: float
+
+
+class ValuesWithCount(BaseModel):
+    count: int
+    values: List[Value]

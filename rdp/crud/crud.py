@@ -10,6 +10,8 @@ from sqlalchemy import select, asc, desc, func
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.orm import Session
 
+from rdp.api.api_types import ValuesWithCount
+
 from .model import Base, Value, ValueType, Device, Room, RoomGroup
 
 
@@ -294,9 +296,10 @@ class Crud:
         start: int = None,
         end: int = None,
         device_id: int = None,
+        page: int = None,
         order: str = None,
         isasc: str = None,
-    ) -> List[Value]:
+    ) -> ValuesWithCount:
         """Get Values from database.
 
         The result can be filtered by the following paramater:
@@ -330,10 +333,22 @@ class Crud:
                 stmt = stmt.join(Value.device).order_by(order_dir(Device.name))
             else:
                 stmt = stmt.order_by(order_dir(Value.time))
+
+            count = session.query(func.count()).select_from(stmt.subquery()).scalar()
+
+            if page is None:
+                page = 1
+            stmt = stmt.offset(10 * (page - 1)).limit(10)
+
             logging.error(start)
             logging.error(stmt)
 
-            return session.scalars(stmt).all()
+            values_with_count = {
+                "count": count,
+                "values": session.scalars(stmt).all(),
+            }
+
+            return values_with_count
 
     def get_values_average(
         self,

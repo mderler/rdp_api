@@ -202,9 +202,10 @@ def get_values(
     start: int = None,
     end: int = None,
     device: int = None,
+    page: int = None,
     orderfield: str = None,
     asc: str = None,
-) -> List[ApiTypes.Value]:
+) -> ApiTypes.ValuesWithCount:
     """Get values from the database. The default is to return all available values. This result can be filtered.
 
     Args:
@@ -221,8 +222,10 @@ def get_values(
     """
     global crud
     try:
-        values = crud.get_values(type_id, start, end, device, orderfield, asc)
-        return values
+        values_with_count = crud.get_values(
+            type_id, start, end, device, page, orderfield, asc
+        )
+        return values_with_count
     except crud.NoResultFound:
         raise HTTPException(status_code=404, detail="Item not found")
 
